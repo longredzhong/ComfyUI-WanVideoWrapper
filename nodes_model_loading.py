@@ -32,15 +32,22 @@ except:
 #from city96's gguf nodes
 def update_folder_names_and_paths(key, targets=[]):
     # check for existing key
-    base = folder_paths.folder_names_and_paths.get(key, ([], {}))
+    if key in folder_paths.folder_names_and_paths:
+        base = folder_paths.folder_names_and_paths[key]
+    else:
+        base = ([], {})
     base = base[0] if isinstance(base[0], (list, set, tuple)) else []
     # find base key & add w/ fallback, sanity check + warning
     target = next((x for x in targets if x in folder_paths.folder_names_and_paths), targets[0])
-    orig, _ = folder_paths.folder_names_and_paths.get(target, ([], {}))
+    if target in folder_paths.folder_names_and_paths:
+        orig, _ = folder_paths.folder_names_and_paths[target]
+    else:
+        orig, _ = ([], {})
     folder_paths.folder_names_and_paths[key] = (orig or base, {".gguf"})
     if base and base != orig:
         log.warning(f"Unknown file list already present on key {key}: {base}")
 update_folder_names_and_paths("unet_gguf", ["diffusion_models", "unet"])
+
 
 class WanVideoModel(comfy.model_base.BaseModel):
     def __init__(self, *args, **kwargs):
